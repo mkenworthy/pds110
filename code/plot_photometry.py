@@ -39,19 +39,30 @@ conv = {'HKEB':'s',
         'HMB':'o',
         'MGW':'v',
         'DKS':'<',
+        'HJW':'.',
+        'KCLA':'*',
+        'PCC':'^',
+        'LCLC':'*',
+        'LMA':'*',
+        'QULA':'*',
         'MGAB':'>'}
 
 obscol = {'HKEB':'r',
         'HMB':'g',
+        'LCLC':'darkblue',
+        'PCC':'brown',
         'MGW':'b',
         'DKS':'y',
+        'LMA':'black',
+        'QULA':'black',
+        'HJW':'purple',
+        'KCLA':'orange',
         'MGAB':'m'}
 
 
-tmax = 57974.
+tmax = 57990.
 
 fig, axes = plt.subplots(n_bands, 1, figsize=(8, 11), sharex=True, sharey=True)
-                         # subplot_kw={'xticks': [], 'yticks': []})
 
 fig.subplots_adjust(hspace=0.05, wspace=0.05)
 
@@ -86,8 +97,6 @@ for (ax, band) in zip(axes, ta_by_band.groups.keys):
         n_points = tc['JD'].size
         print('In band {} observer {} has {} observations'.format(band[0],nob[0],n_points))
 
-
-
         t_noecl = (tc['MJD'] < tmax)
 
         # make an out of eclipse average
@@ -100,13 +109,11 @@ for (ax, band) in zip(axes, ta_by_band.groups.keys):
         tc['dmag'] = tc['Magnitude'] - mean_mag
         tc['I'] = np.power(10, tc['dmag'] / -2.5)
 
-#        ax.errorbar(tc['MJD'], tc['Magnitude'], tc['Uncertainty'], fmt=conv[nob[0]], color=obscol[nob[0]])
-        ax.errorbar(tc['MJD'], tc['I'], tc['Uncertainty'], fmt=conv[nob[0]], color=obscol[nob[0]])
+        ax.errorbar(tc['MJD'], tc['I'], tc['Uncertainty'], fmt=conv.get(nob[0],"*"), color=obscol.get(nob[0],'black'))
         ax.text(0.9, 0.2, band[0], ha='center', va='center', fontsize=24, transform=ax.transAxes)
         ax.vlines(now.mjd, 0.0, 1.1,linestyle='dashed')
         ax.hlines(1.0, 0,60000,linestyle='dotted')
         ax.plot(t_ecl, 1 - f(t_ecl))
-
         
 ax.set_ylim(0.50,1.08)
 ax.set_xlim(now.mjd-20, now.mjd+40)
@@ -118,5 +125,3 @@ fout = datetime.today().strftime('pds110_intens_aavso_%Y%m%d_%H%M.png')
 plt.savefig(fout)
 plt.draw()
 plt.show()
-print(t_ecl)
-print(f(t_ecl))

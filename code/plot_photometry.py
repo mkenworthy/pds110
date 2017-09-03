@@ -40,11 +40,8 @@ conv = {'HKEB':'s',
         'MGW':'v',
         'DKS':'<',
         'HJW':'.',
-        'KCLA':'*',
         'PCC':'^',
         'LCLC':'*',
-        'LMA':'*',
-        'QULA':'*',
         'MGAB':'>'}
 
 obscol = {'HKEB':'r',
@@ -53,14 +50,11 @@ obscol = {'HKEB':'r',
         'PCC':'brown',
         'MGW':'b',
         'DKS':'y',
-        'LMA':'black',
-        'QULA':'black',
         'HJW':'purple',
-        'KCLA':'orange',
         'MGAB':'m'}
 
 
-tmax = 57990.
+tmax = 57998.
 
 fig, axes = plt.subplots(n_bands, 1, figsize=(8, 11), sharex=True, sharey=True)
 

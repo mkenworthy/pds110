@@ -33,7 +33,7 @@ print('current MJD is {}'.format(now.mjd))
 ta_by_band = ta.group_by('Band')
 
 # the number of different bands
-n_bands = ta_by_band.groups.indices.size - 1
+n_bands = len(ta_by_band.groups)
 
 conv = {'HKEB':'s',
         'HMB':'o',
@@ -56,6 +56,9 @@ obscol = {'HKEB':'r',
 
 tmax = 57998.
 
+mybands = ('B','V','R','I')
+n_bands = len(mybands)
+
 fig, axes = plt.subplots(n_bands, 1, figsize=(8, 11), sharex=True, sharey=True)
 
 fig.subplots_adjust(hspace=0.05, wspace=0.05)
@@ -75,39 +78,39 @@ f = Gaussian1D(0.26, hjd_mid, ecl_sig)
 t_ecl=np.arange(hjd_mid - 50, hjd_mid + 50, 1)
 
 
-for (ax, band) in zip(axes, ta_by_band.groups.keys):
-    print(band)
+for (ax, band) in zip(axes, mybands):
+#for (ax, band) in zip(axes, ta_by_band.groups.keys):
     mask = ta_by_band.groups.keys['Band'] == band[0]
 
     # loop over each band and estimate out of transit flux
     tb = ta_by_band.groups[mask]
     tb_by_obs = tb.group_by('Observer Code')
-    n_obs = tb_by_obs.groups.indices.size - 1
-    print(n_obs)
-    print('{} observers in filter {}'.format(n_obs,band[0]))
+    n_obs = len(tb_by_obs.groups)
+#    print('{} observers in filter {}'.format(n_obs,band[0]))
     for nob in tb_by_obs.groups.keys:
         mask2 = tb_by_obs.groups.keys['Observer Code'] == nob[0]        
         tc = tb_by_obs.groups[mask2]
         n_points = tc['JD'].size
-        print('In band {} observer {} has {} observations'.format(band[0],nob[0],n_points))
+#        print('In band {} observer {} has {} observations'.format(band[0],nob[0],n_points))
 
         t_noecl = (tc['MJD'] < tmax)
 
         # make an out of eclipse average
         t_out = tc[t_noecl]
-        print(t_out)
+#        print(t_out)
         mean_mag = np.array(t_out['Magnitude']).mean()
-        print('mean magnitude is {}'.format(mean_mag))
+#        print('mean magnitude is {}'.format(mean_mag))
 
         # mag to intensity
         tc['dmag'] = tc['Magnitude'] - mean_mag
         tc['I'] = np.power(10, tc['dmag'] / -2.5)
 
-        ax.errorbar(tc['MJD'], tc['I'], tc['Uncertainty'], fmt=conv.get(nob[0],"*"), color=obscol.get(nob[0],'black'))
+        ax.errorbar(tc['MJD'], tc['I'], tc['Uncertainty'], fmt=conv.get(nob[0],"*"), color=obscol.get(nob[0],'black'), label=nob[0])
         ax.text(0.9, 0.2, band[0], ha='center', va='center', fontsize=24, transform=ax.transAxes)
         ax.vlines(now.mjd, 0.0, 1.1,linestyle='dashed')
         ax.hlines(1.0, 0,60000,linestyle='dotted')
         ax.plot(t_ecl, 1 - f(t_ecl))
+        ax.legend()
         
 ax.set_ylim(0.50,1.08)
 ax.set_xlim(now.mjd-20, now.mjd+40)

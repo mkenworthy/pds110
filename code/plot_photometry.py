@@ -10,7 +10,7 @@ from astropy.io import ascii
 import matplotlib
 matplotlib.use('qt5agg')
 import matplotlib.pyplot as plt
-import seaborn as sns   
+#import seaborn as sns   
 
 aavso_file = '../data/aavsodata.txt'
 
@@ -74,8 +74,9 @@ hjd_mid = 2458015.5 - 2400000.5
 ecl_fwhm = 7.
 ecl_sig = ecl_fwhm / np.sqrt((2*np.log(2)))
 f = Gaussian1D(0.26, hjd_mid, ecl_sig)
+f_late = Gaussian1D(0.26, hjd_mid+10., ecl_sig)
 
-t_ecl=np.arange(hjd_mid - 50, hjd_mid + 50, 1)
+t_ecl = np.arange(hjd_mid - 50, hjd_mid + 50, 1)
 
 
 for (ax, band) in zip(axes, mybands):
@@ -105,12 +106,25 @@ for (ax, band) in zip(axes, mybands):
         tc['dmag'] = tc['Magnitude'] - mean_mag
         tc['I'] = np.power(10, tc['dmag'] / -2.5)
 
+        # photometry with errorbars
         ax.errorbar(tc['MJD'], tc['I'], tc['Uncertainty'], fmt=conv.get(nob[0],"*"), color=obscol.get(nob[0],'black'), label=nob[0])
-        ax.text(0.9, 0.2, band[0], ha='center', va='center', fontsize=24, transform=ax.transAxes)
+
+        # photometric band label
+        ax.text(0.2, 0.2, band[0], ha='center', va='center', fontsize=24, transform=ax.transAxes)
+
+        # today's date
         ax.vlines(now.mjd, 0.0, 1.1,linestyle='dashed')
-        ax.hlines(1.0, 0,60000,linestyle='dotted')
-        ax.plot(t_ecl, 1 - f(t_ecl))
-        ax.legend()
+
+        # out of eclipse flux level
+        ax.hlines(1.0, 0, 60000, linestyle='dotted')
+
+        # expected location of eclipse
+        ax.plot(t_ecl, 1 - f(t_ecl),color='red')
+
+        # expected location of eclipse
+        ax.plot(t_ecl, 1 - f_late(t_ecl), color='yellow', alpha=0.5)
+        
+        ax.legend(loc="lower right", fontsize=8, ncol=3, fancybox=True)
         
 ax.set_ylim(0.50,1.08)
 ax.set_xlim(now.mjd-20, now.mjd+40)
